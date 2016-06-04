@@ -19,24 +19,26 @@ namespace VKClient
         {
             InitializeComponent();
         }
+        public ReadOnlyCollection<VKLib.Model.Message> dialog;
+        public VKapi qu = new VKapi();
 
         private void Messenger_Load(object sender, EventArgs e)
         {
-            int id=0;
+            int id = 0;
             string log="", pass="";
             SettingLoader.logpass(ref id, ref log, ref pass);
-            VKapi qu = new VKapi();
             Settings lvl = Settings.All;
             qu.Authorize(id, log, pass, lvl);
-
+            
             int totalcount = 5; int unreadcount = 5;
 
-            ReadOnlyCollection<VKLib.Model.Message> dialog = qu.Messages.GetDialogs(out totalcount, out unreadcount, 20, 0, false);
+            dialog = qu.Messages.GetDialogs(out totalcount, out unreadcount, 20, 0, false);
             
             //System.Collections.ObjectModel.ReadOnlyCollection<VKLib.Model.Message>
-            for (int i=0; i<20; i++)
+            for (int i=0; i<10; i++)
             {
-                if (dialog[i].Title != " ... ") listBox2.Items.Add(dialog[i].Title);
+                
+                if (dialog[i].UsersCount>2) listBox2.Items.Add(dialog[i].Title);
                 else
                 {
                     VKLib.Model.User obj = qu.Users.Get(Convert.ToInt64(dialog[i].UserId));
@@ -44,6 +46,42 @@ namespace VKClient
                 }
             }
 
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+            int messegcount = 10;
+            int a = listBox2.SelectedIndex;
+            ReadOnlyCollection<VKLib.Model.Message> history;
+            if (dialog[a].UsersCount > 2) 
+                history = qu.Messages.GetHistory(out messegcount, true,2000000000+ Convert.ToInt64(dialog[a].ChatId));
+            else
+            {
+               history = qu.Messages.GetHistory(out messegcount, false, Convert.ToInt64(dialog[a].UserId));
+            }
+            for (int i=history.Count-1; i>=0; i--)
+            {
+                listBox1.Items.Add(history[i].FromId+" "+history[i].Body);
+            }
+            listBox1.TopIndex = listBox1.Items.Count - 1;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string t = textBox1.Text;
+            int a = listBox2.SelectedIndex;
+            if (t!="")
+            {
+                listBox1.Items.Add(Convert.ToString(qu.UserId)+" "+t);
+                  if (dialog[a].UsersCount > 2)
+                      qu.Messages.Send(2000000000 + Convert.ToInt64(dialog[a].ChatId),true,t);
+            else
+            {
+                qu.Messages.Send(Convert.ToInt64(dialog[a].UserId),false,t);
+            }
+                  textBox1.Clear(); 
+            }
         }
     }
 }
