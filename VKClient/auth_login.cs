@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,18 +10,16 @@ using System.Windows.Forms;
 
 namespace VKClient
 {
-    public partial class Form1 : Form
+    public partial class auth_login : UserControl
     {
-        public Form1()
+        public auth_login()
         {
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void checkbox_PassVisible_CheckedChanged(object sender, EventArgs e)
         {
-            Authorization au = new Authorization();
-            au.Show();
-            this.Size = new Size(200, 10);
+            textbox_Password.UseSystemPasswordChar = !checkbox_PassVisible.Checked;
         }
     }
 }

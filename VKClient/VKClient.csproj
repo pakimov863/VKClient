@@ -45,15 +45,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authorization.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Authorization.Designer.cs">
+      <DependentUpon>Authorization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="auth_login.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="auth_login.Designer.cs">
+      <DependentUpon>auth_login.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="load_anim.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="load_anim.Designer.cs">
+      <DependentUpon>load_anim.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SettingController.cs" />
     <Compile Include="SettingLoader.cs" />
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -62,6 +84,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -75,6 +98,159 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_000.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_001.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_002.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_003.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_005.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_006.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_007.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_008.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_009.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_010.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_011.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_012.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_013.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_014.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_015.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_016.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_017.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_018.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_019.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_020.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_021.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_022.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_023.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_024.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_025.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_026.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_027.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_028.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_029.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_030.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_031.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL1_032.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_000.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_001.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_002.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_003.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_005.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_006.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_007.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_008.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_009.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_010.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_011.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_012.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_013.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_014.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AL2_015.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VKLib\VKLib.csproj">
+      <Project>{e194b6e7-3871-436a-9aaa-94df6bafcb34}</Project>
+      <Name>VKLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
