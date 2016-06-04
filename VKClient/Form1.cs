@@ -16,5 +16,11 @@ namespace VKClient
         {
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Messenger ms = new Messenger();
+            ms.Show();
+        }
     }
 }
