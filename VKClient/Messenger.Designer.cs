@@ -33,6 +33,8 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
+            this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
+            this.chat_MainWindow1 = new VKClient.Chat_MainWindow();
             this.SuspendLayout();
             // 
             // label1
@@ -79,11 +81,21 @@
             this.listBox2.TabIndex = 5;
             this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
             // 
+            // elementHost1
+            // 
+            this.elementHost1.Location = new System.Drawing.Point(231, 43);
+            this.elementHost1.Name = "elementHost1";
+            this.elementHost1.Size = new System.Drawing.Size(453, 225);
+            this.elementHost1.TabIndex = 6;
+            this.elementHost1.Text = "elementHost1";
+            this.elementHost1.Child = this.chat_MainWindow1;
+            // 
             // Messenger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(675, 389);
+            this.ClientSize = new System.Drawing.Size(1010, 389);
+            this.Controls.Add(this.elementHost1);
             this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
@@ -104,5 +116,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ListBox listBox2;
+        public System.Windows.Forms.Integration.ElementHost elementHost1;
+        public Chat_MainWindow chat_MainWindow1;
     }
 }
