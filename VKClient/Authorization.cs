@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 using VKLib;
 using VKLib.Enums.Filters;
@@ -15,33 +16,68 @@ namespace VKClient
 {
     public partial class Authorization : Form
     {
-        private auth_login loginBox; 
-        public Authorization()
+        private VKapi _Api;
+        private ulong _Appid;
+        private string _Login;
+        private string _Password;
+        private string _Image;
+
+        public Authorization(ref VKapi api, ulong appid)
         {
             InitializeComponent();
-            loginBox = new auth_login();
-            loginBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            loginBox.Location = new System.Drawing.Point(this.Width - loginBox.Width-28, 12);
-            loginBox.Name = "loginBox";
-            loginBox.button_Login.Click += new System.EventHandler(this.button_Login_Click);
-            this.Controls.Add(loginBox);
+            _Api = api;
+            _Appid = appid;
         }
 
         public void button_Login_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show("L:" + loginBox.textbox_Login.Text + " P:" + loginBox.textbox_Password.Text);
+            if (_Login.Trim() == "" || _Password.Trim() == "")
+            {
+                if (textbox_Login.Text.Trim() == "" || textbox_Password.Text.Trim() == "")
+                    MessageBox.Show("Неверный логин или пароль");
+                else
+                { _Login = textbox_Login.Text.Trim(); _Password = textbox_Password.Text.Trim(); }
+            }
+
+            try
+            {
+                _Api.Authorize(new ApiAuthParams
+                {
+                    ApplicationId = _Appid,
+                    Login = _Login,
+                    Password = _Password,
+                    Settings = Settings.All
+                });
+            }
+            catch(VKLib.Exception.AccessDeniedException ex)
+            {
+                MessageBox.Show("Неверный логин или пароль: " + ex.Message); return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка: " + ex.Message); return;
+            }
+
+            if (_Api.IsAuthorized)
+            {
+                if (!Directory.Exists("users/" + Convert.ToString(_Api.UserId) + "/")) Directory.CreateDirectory("users/" + Convert.ToString(_Api.UserId) + "/");
+                    using (StreamWriter SW = new StreamWriter("users/" + Convert.ToString(_Api.UserId) + "/userinfo.info", false))
+                    {
+                        SW.WriteLine(_Login);
+                        SW.WriteLine(_Password);
+                        SW.Close();
+                    }
+                using (StreamWriter SW = new StreamWriter("lastusers.info",false ))
+                {
+                    SW.WriteLine(Convert.ToString(_Api.UserId));
+                    SW.Close();
+                }
+                this.Close();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            #region private
-            int appId = 0; // указываем id приложения
-            string email = "0"; // email для авторизации
-            string password = "0"; // пароль
-            #endregion
-
-            Settings settings = Settings.All; // уровень доступа к данным
-
             //var api = new VKapi();
             //api.Authorize(appId, email, password, settings); // авторизуемся
 
@@ -63,6 +99,43 @@ namespace VKClient
             {
                 api.Messages.Send(id, false, "привет, друг!"); // посылаем сообщение пользователю
             }*/
+        }
+
+        private void checkbox_PassVisible_CheckedChanged(object sender, EventArgs e)
+        {
+            textbox_Password.UseSystemPasswordChar = !checkbox_PassVisible.Checked;
+        }
+
+        private void Authorization_Load(object sender, EventArgs e)
+        {
+            if (!Directory.Exists("users")) Directory.CreateDirectory("users");
+            string username = "";
+            if (File.Exists("lastusers.info"))
+                using(StreamReader SR = new StreamReader("lastusers.info"))
+                {
+                    while(!SR.EndOfStream )
+                    {
+                        username = SR.ReadLine();
+                    }
+                    SR.Close();
+                }
+            if (username.Trim() == "") username = null;
+            if (username != null && Directory.Exists("users/" + username + "/"))
+            {
+                if (File.Exists("users/" + username + "/userinfo.info"))
+                {
+                    using (StreamReader SR = new StreamReader("users/" + username + "/userinfo.info"))
+                    {
+                        _Login = SR.ReadLine();
+                        _Password = SR.ReadLine();
+                        _Image = SR.ReadLine();
+                        SR.Close();
+                    }
+                    if (_Image != null) if (_Image.Trim() != "") pictureBox1.Image = new Bitmap(_Image);
+                    if (_Login != null && _Password != null) if (_Login.Trim() != "" && _Password.Trim() != "") button_Login_Click(sender, e);
+                    else if (_Login.Trim() != "") textbox_Login.Text = _Login;
+                }
+            }
         }
     }
 }

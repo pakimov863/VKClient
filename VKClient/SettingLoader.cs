@@ -10,10 +10,10 @@ namespace VKClient
     static class SettingLoader
     {
 
-        public static void logpass(ref int id, ref string log, ref string pass)
+        public static void logpass(ref ulong  id, ref string log, ref string pass)
         {
             StreamReader sr = new StreamReader("../../../../data.txt");
-            id = Convert.ToInt32(sr.ReadLine());
+            id = Convert.ToUInt64(sr.ReadLine());
             log = sr.ReadLine();
             pass = sr.ReadLine();
             sr.Close();
