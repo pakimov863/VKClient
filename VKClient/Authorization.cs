@@ -18,9 +18,9 @@ namespace VKClient
     {
         private VKapi _Api;
         private ulong _Appid;
-        private string _Login;
-        private string _Password;
-        private string _Image;
+        private string _Login = "";
+        private string _Password = "";
+        private string _Image = "";
 
         public Authorization(ref VKapi api, ulong appid)
         {
@@ -31,7 +31,7 @@ namespace VKClient
 
         public void button_Login_Click(object sender, EventArgs e)
         {
-            if (_Login.Trim() == "" || _Password.Trim() == "")
+            if (String.IsNullOrWhiteSpace(_Login) || String.IsNullOrWhiteSpace(_Password))
             {
                 if (textbox_Login.Text.Trim() == "" || textbox_Password.Text.Trim() == "")
                     MessageBox.Show("Неверный логин или пароль");
@@ -48,10 +48,7 @@ namespace VKClient
                     Password = _Password,
                     Settings = Settings.All
                 });
-            }
-            catch(VKLib.Exception.AccessDeniedException ex)
-            {
-                MessageBox.Show("Неверный логин или пароль: " + ex.Message); return;
+
             }
             catch (Exception ex)
             {
@@ -76,31 +73,6 @@ namespace VKClient
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            //var api = new VKapi();
-            //api.Authorize(appId, email, password, settings); // авторизуемся
-
-            //api.Messages.Send(12504716, false, "привет, друг!");
-            //var myuser = api.Users.Get(143525490,ProfileFields.All );
-            //int i = 0;
-            //var myuser = api.Messages.GetHistory(143525490, false, out i);
-            //var myuser = api.Messages.GetDialogs();
-            //MessageBox.Show(Convert.ToString(myuser));
-            //var audio = api.Audio.Get(143525490);
-            //MessageBox.Show(Convert.ToString(audio));
-
-            /*var group = api.Utils.ResolveScreenName("habr"); // получаем id сущности с коротким именем habr
-
-            // получаем id пользователей из группы, макс. кол-во записей = 1000
-            int totalCount; // общее кол-во участников
-            var userIds = api.Groups.GetMembers(group.Id.Value, out totalCount);
-            foreach (long id in userIds)
-            {
-                api.Messages.Send(id, false, "привет, друг!"); // посылаем сообщение пользователю
-            }*/
-        }
-
         private void checkbox_PassVisible_CheckedChanged(object sender, EventArgs e)
         {
             textbox_Password.UseSystemPasswordChar = !checkbox_PassVisible.Checked;
@@ -109,6 +81,7 @@ namespace VKClient
         private void Authorization_Load(object sender, EventArgs e)
         {
             if (!Directory.Exists("users")) Directory.CreateDirectory("users");
+
             string username = "";
             if (File.Exists("lastusers.info"))
                 using(StreamReader SR = new StreamReader("lastusers.info"))
@@ -119,8 +92,21 @@ namespace VKClient
                     }
                     SR.Close();
                 }
-            if (username.Trim() == "") username = null;
-            if (username != null && Directory.Exists("users/" + username + "/"))
+            if (username.Trim() == "") username = "";
+
+            listBox1.Items.Add("Новый пользователь");
+            listBox1.SelectedIndex = 0;
+            foreach (string item in Directory.GetDirectories("users"))
+            {
+                if (File.Exists(item + "/userinfo.info"))
+                {
+                    string addusername = item.Substring(item.LastIndexOf("\\")+1);
+                    listBox1.Items.Add(addusername);
+                    if (addusername == username) listBox1.SelectedIndex = listBox1.Items.Count - 1;
+                }
+            }
+
+            if (!String.IsNullOrWhiteSpace(username) && Directory.Exists("users/" + username + "/"))
             {
                 if (File.Exists("users/" + username + "/userinfo.info"))
                 {
@@ -131,9 +117,56 @@ namespace VKClient
                         _Image = SR.ReadLine();
                         SR.Close();
                     }
-                    if (_Image != null) if (_Image.Trim() != "") pictureBox1.Image = new Bitmap(_Image);
-                    if (_Login != null && _Password != null) if (_Login.Trim() != "" && _Password.Trim() != "") button_Login_Click(sender, e);
-                    else if (_Login.Trim() != "") textbox_Login.Text = _Login;
+                    if (!String.IsNullOrWhiteSpace(_Image)) pictureBox1.Image = new Bitmap(_Image);
+                    if (!String.IsNullOrWhiteSpace(_Login) && !String.IsNullOrWhiteSpace(_Password)) button_Login_Click(sender, e);
+                    else if (!String.IsNullOrWhiteSpace(_Login))
+                    {
+                        textbox_Login.Text = _Login;
+                        textbox_Password.Focus();
+                    }
+                }
+            }
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(listBox1.SelectedIndex == 0)
+            {
+                textbox_Login.Clear(); textbox_Login.ClearUndo();
+                textbox_Password.Clear(); textbox_Password.ClearUndo();
+            }
+            else
+            {
+                if (!String.IsNullOrWhiteSpace(listBox1.Items[listBox1.SelectedIndex].ToString()) && Directory.Exists("users/" + listBox1.Items[listBox1.SelectedIndex].ToString() + "/"))
+                {
+                    if (File.Exists("users/" + listBox1.Items[listBox1.SelectedIndex].ToString() + "/userinfo.info"))
+                    {
+                        using (StreamReader SR = new StreamReader("users/" + listBox1.Items[listBox1.SelectedIndex].ToString() + "/userinfo.info"))
+                        {
+                            _Login = SR.ReadLine();
+                            _Password = SR.ReadLine();
+                            _Image = SR.ReadLine();
+                            SR.Close();
+                        }
+                        if (!String.IsNullOrWhiteSpace(_Image)) pictureBox1.Image = new Bitmap(_Image);
+                        if (!String.IsNullOrWhiteSpace(_Login) && !String.IsNullOrWhiteSpace(_Password))
+                        {
+                            textbox_Login.Text = _Login;
+                            textbox_Password.Text = _Password;
+                            button_Login.Focus();
+                        }
+                        else if (!String.IsNullOrWhiteSpace(_Login))
+                        {
+                            textbox_Login.Text = _Login;
+                            textbox_Password.Focus();
+                        }
+                        else
+                        {
+                            textbox_Login.Clear(); textbox_Login.ClearUndo();
+                            textbox_Password.Clear(); textbox_Password.ClearUndo();
+                            textbox_Login.Focus();
+                        }
+                    }
                 }
             }
         }
