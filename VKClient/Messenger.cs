@@ -24,6 +24,14 @@ namespace VKClient
 
         private void Messenger_Load(object sender, EventArgs e)
         {
+            int x = 0;
+            while (x < 20)
+            {
+                messageControl1.Add("Testing\r\nasdasdasdasd", MessageControl.BubblePositionEnum.Right);
+                messageControl1.Add("Testing\r\nasdasdasdasd\r\nasdasdasdasd", MessageControl.BubblePositionEnum.Right);
+                messageControl1.Add("Testing", MessageControl.BubblePositionEnum.Left);
+                x++;
+            }
             int id = 0;
             string log = "", pass = "";
             SettingLoader.logpass(ref id, ref log, ref pass);
@@ -50,7 +58,7 @@ namespace VKClient
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.chat_MainWindow1.messages.Clear();
+            //this.chat_MainWindow1.messages.Clear();
 
             listBox1.Items.Clear();
             int messegcount = 10;
@@ -65,12 +73,12 @@ namespace VKClient
             for (int i = history.Count - 1; i >= 0; i--)
             {
                 listBox1.Items.Add(history[i].FromId + " " + history[i].Body);
-                if (history[i].FromId != qu.UserId) this.chat_MainWindow1.addTextYou(history[i].Body, Convert.ToDateTime(history[i].Date));
-                else this.chat_MainWindow1.addTextMe(history[i].Body, Convert.ToDateTime(history[i].Date));
+                //if (history[i].FromId != qu.UserId) this.chat_MainWindow1.addTextYou(history[i].Body, Convert.ToDateTime(history[i].Date));
+                //else this.chat_MainWindow1.addTextMe(history[i].Body, Convert.ToDateTime(history[i].Date));
             }
             listBox1.TopIndex = listBox1.Items.Count - 1;
 
-            this.chat_MainWindow1.ScrollConversationToEnd();
+            //this.chat_MainWindow1.ScrollConversationToEnd();
         }
 
         private void button1_Click(object sender, EventArgs e)

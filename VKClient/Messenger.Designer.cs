@@ -33,8 +33,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
-            this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
-            this.chat_MainWindow1 = new VKClient.Chat_MainWindow();
+            this.messageControl1 = new MessageControl();
             this.SuspendLayout();
             // 
             // label1
@@ -81,21 +80,32 @@
             this.listBox2.TabIndex = 5;
             this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
             // 
-            // elementHost1
+            // messageControl1
             // 
-            this.elementHost1.Location = new System.Drawing.Point(231, 43);
-            this.elementHost1.Name = "elementHost1";
-            this.elementHost1.Size = new System.Drawing.Size(453, 225);
-            this.elementHost1.TabIndex = 6;
-            this.elementHost1.Text = "elementHost1";
-            this.elementHost1.Child = this.chat_MainWindow1;
+            this.messageControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.messageControl1.AutoScroll = true;
+            this.messageControl1.BackColor = System.Drawing.Color.Orange;
+            this.messageControl1.BubbleIndent = 40;
+            this.messageControl1.BubbleSpacing = 10;
+            this.messageControl1.DrawArrow = true;
+            this.messageControl1.LeftBubbleColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
+            this.messageControl1.LeftBubbleTextColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(52)))), ((int)(((byte)(52)))));
+            this.messageControl1.Location = new System.Drawing.Point(669, 43);
+            this.messageControl1.Name = "messageControl1";
+            this.messageControl1.RightBubbleColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(206)))), ((int)(((byte)(215)))));
+            this.messageControl1.RightBubbleTextColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(52)))), ((int)(((byte)(52)))));
+            this.messageControl1.Size = new System.Drawing.Size(279, 302);
+            this.messageControl1.TabIndex = 6;
+            this.messageControl1.Text = "messageControl1";
             // 
             // Messenger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1010, 389);
-            this.Controls.Add(this.elementHost1);
+            this.Controls.Add(this.messageControl1);
             this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
@@ -116,7 +126,6 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ListBox listBox2;
-        public System.Windows.Forms.Integration.ElementHost elementHost1;
-        public Chat_MainWindow chat_MainWindow1;
+        private MessageControl messageControl1;
     }
 }
