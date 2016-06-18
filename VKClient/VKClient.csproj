@@ -62,9 +62,6 @@
     <Compile Include="Chat_MessageCollection.cs" />
     <Compile Include="Chat_MessageTemplateSelector.cs" />
     <Compile Include="Chat_StringFormatConverter.cs" />
-    <Compile Include="MessageControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
