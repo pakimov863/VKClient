@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace VKClient
 {
-    public class Chat_GridUtils
+    public class Chat_GridUtils 
     {
         #region RowDefinitions attached property
 
