@@ -20,6 +20,7 @@ namespace VKClient
             InitializeComponent();
         }
         public ReadOnlyCollection<VKLib.Model.Message> dialog;
+        public List<DialogBubble> DialogMessages;
         public VKapi qu = new VKapi();
 
         private void Messenger_Load(object sender, EventArgs e)
@@ -50,12 +51,11 @@ namespace VKClient
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.chat_MainWindow1.messages.Clear();
-
             listBox1.Items.Clear();
             int messegcount = 10;
             int a = listBox2.SelectedIndex;
             ReadOnlyCollection<VKLib.Model.Message> history;
+            DialogMessages = new List<DialogBubble>();
             if (dialog[a].UsersCount > 2)
                 history = qu.Messages.GetHistory(out messegcount, true, 2000000000 + Convert.ToInt64(dialog[a].ChatId));
             else
@@ -65,19 +65,12 @@ namespace VKClient
             for (int i = history.Count - 1; i >= 0; i--)
             {
                 listBox1.Items.Add(history[i].FromId + " " + history[i].Body);
-                if (history[i].FromId != qu.UserId) this.chat_MainWindow1.addTextYou(history[i].Body, Convert.ToDateTime(history[i].Date));
-                else this.chat_MainWindow1.addTextMe(history[i].Body, Convert.ToDateTime(history[i].Date));
             }
             listBox1.TopIndex = listBox1.Items.Count - 1;
-
-            this.chat_MainWindow1.ScrollConversationToEnd();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //this.chat_MainWindow1.messages.Clear();
-            //this.chat_MainWindow1.addTextMe("asdasdasd");
-
             string t = textBox1.Text;
             int a = listBox2.SelectedIndex;
             if (t != "")
