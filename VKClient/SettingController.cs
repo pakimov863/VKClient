@@ -10,6 +10,9 @@ namespace VKClient
 {
     class SettingController
     {
+        //Dictionary<string, Dictionary<string, Object>>
+        //group -> key -> data
+
         public enum Format
         {
             TextFormat = 0,
@@ -31,413 +34,264 @@ namespace VKClient
             FormatError = 2
         };
 
-        //Переменные
+        // Переменные
 
         private Format _Format;
         private Scope _Scope;
         private Status _Status;
-        private String _Organization;
-        private String _Application;
         private String _FileName;
+        private Dictionary<String, Dictionary<String, Object>> _Data;
 
         private StreamReader _SR;
         private StreamWriter _SW;
-        private String _CurrentGroup = "";
 
-        //Конструктры
+        // Конструктры
 
-        public SettingController(String organization, String application)
+        public SettingController(Boolean rewrite = false)
         {
-            this._Format = Format.TextFormat;
-            this._Scope = Scope.AppScope;
-            this._Status = Status.NoError;
-            this._Organization = organization;
-            this._Application = application;
-            this._FileName = "settings";
+            _Format = Format.TextFormat;
+            _Scope = Scope.AppScope;
+            _Status = Status.NoError;
+            _Data = new Dictionary<String, Dictionary<String, Object>>();
+            _FileName = "settings.set";
+            if (rewrite && File.Exists(_FileName)) File.Delete(_FileName);
         }
 
-        public SettingController(Scope scope, String organization, String application)
+        public SettingController(String file, Boolean rewrite = false)
         {
-            this._Format = Format.TextFormat;
-            this._Scope = scope;
-            this._Status = Status.NoError;
-            this._Organization = organization;
-            this._Application = application;
-            this._FileName = "settings";
+            _Format = Format.TextFormat;
+            _Scope = Scope.AppScope;
+            _Status = Status.NoError;
+            _Data = new Dictionary<String, Dictionary<String, Object>>();
+            _FileName = file;
+            if (rewrite && File.Exists(_FileName)) File.Delete(_FileName);
         }
 
-        public SettingController(Format format, Scope scope, String organization, String application)
+        public SettingController(Format format, Scope scope, String file, Boolean rewrite = false)
         {
-            this._Format = format;
-            this._Scope = scope;
-            this._Status = Status.NoError;
-            this._Organization = organization;
-            this._Application = application;
-            this._FileName = "settings";
+            _Format = format;
+            _Scope = scope;
+            _Status = Status.NoError;
+            _Data = new Dictionary<String, Dictionary<String, Object>>();
+            _FileName = file;
+            if (rewrite && File.Exists(_FileName)) File.Delete(_FileName);
         }
 
-        public SettingController(String fileName, Format format)
-        {
-            this._Format = format;
-            this._Scope = Scope.AppScope;
-            this._Status = Status.NoError;
-            this._Organization = "DefaultOrganization";
-            this._Application = "DefaultApplication";
-            this._FileName = fileName;
-        }
-
-        public SettingController()
-        {
-            this._Format = Format.TextFormat;
-            this._Scope = Scope.AppScope;
-            this._Status = Status.NoError;
-            this._Organization = "DefaultOrganization";
-            this._Application = "DefaultApplication";
-            this._FileName = "settings";
-        }
-
-        //Функции
-
-        void GetFilePath(ref String filePath)
-        {
-            if (this._Status != Status.NoError) return;
-
-            if (this._Scope == Scope.AppScope) filePath = Environment.CurrentDirectory.ToString() + "\\" + this._FileName;
-            else if (this._Scope == Scope.UserScope) filePath = Environment.SpecialFolder.ApplicationData.ToString() + "\\" + this._FileName;
-            else if (this._Scope == Scope.SystemScope) filePath = Environment.SpecialFolder.CommonApplicationData.ToString() + "\\" + this._FileName;
-            else
-            {
-                this._Status = Status.FormatError;
-                return;
-            }
-
-            if (this._Format == Format.IniFormat) filePath += ".ini";
-            else if (this._Format == Format.TextFormat) filePath += ".set";
-            //else if (this._Format == Format.CryptoFormat) filePath += ".cset";
-            else
-            {
-                this._Status = Status.FormatError;
-                return;
-            }
-        }
+        // Функции
 
         /// <summary>
-        /// Returns a list of all keys, including subkeys, that can be read using the QSettings object.
+        /// Загружает настройки из файла
         /// </summary>
-        /// <returns></returns>
-        List<String> allKeys()
+        /// <returns>true, если не было ошибок</returns>
+        public bool load()
         {
-            String filePath = "";
-            GetFilePath(ref filePath);
+            _SR = new StreamReader(_FileName);
+            clear();
 
-            if (this._Status != Status.NoError) return null;
-
-            List<String> retData = new List<string>();
-            _SR = new StreamReader(filePath);
-            try
+            String currentGroup = "";
+            while(!_SR.EndOfStream)
             {
-                while (!_SR.EndOfStream)
+                String rstring = _SR.ReadLine();
+                if (_Format == Format.IniFormat)
                 {
-                    String line = _SR.ReadLine();
-                    if (this._Format == Format.IniFormat || this._Format == Format.TextFormat)
+                    if (rstring.Trim().StartsWith("#") || rstring.Trim().StartsWith(";")) continue;
+                    if (rstring.Trim().StartsWith("[") && rstring.Contains("]"))
                     {
-                        String adLine = line.Substring(0, line.IndexOf("=") + 1).Trim();
-                        if (adLine != "" || !(adLine.Contains("[") && adLine.Contains("]"))) retData.Add(adLine);
+                        String sect = rstring.Trim().Substring(1, rstring.IndexOf("]"));
+                        if (!_Data.ContainsKey(sect.ToLower())) _Data.Add(sect.ToLower(), new Dictionary<string, object>());
+                        currentGroup = sect.ToLower();
+                        continue;
                     }
-                    /*else if (this._Format == Format.CryptoFormat)
-                    {
-                        
-                    }*/
-                    else
-                    {
-                        throw new Exception();
-                    }
+
+                    String[] rdata = rstring.Trim().Split(new Char[]{'=', ';'});
+                    if (String.IsNullOrWhiteSpace(currentGroup)) currentGroup = "default";
+                    setValue(rdata[0].Trim(), rdata[1].Trim(), currentGroup);
                 }
-            }
-            catch
-            {
-                this._Status = Status.AccessError;
-                return null;
-            }
-            finally
-            {
-                _SR.Close();
-                _SR.Dispose();
-            }
-            return retData;
-        }
-
-        /// <summary>
-        /// Returns the application name used for storing the settings.
-        /// </summary>
-        /// <returns></returns>
-        String applicationName()
-        {
-            return this._Application;
-        }
-
-        /// <summary>
-        /// Appends prefix to the current group.
-        /// </summary>
-        /// <param name="prefix"></param>
-        void beginGroup(string prefix)
-        {
-            String filePath = "";
-            GetFilePath(ref filePath);
-
-            if (this._Status != Status.NoError) return;
-
-            _SW = new StreamWriter(filePath, true);
-            try
-            {
-                if (this._Format == Format.IniFormat)
-                {
-                    _SW.WriteLine("[" + prefix + "]");
-                }
-                else if (this._Format == Format.TextFormat)
-                {
-                    if (this._CurrentGroup == "") _SW.WriteLine("[" + prefix + "]");
-                    else _SW.WriteLine("[" + this._CurrentGroup + "|" + prefix + "]");
-                }
-                /*else if (this._Format == Format.CryptoFormat)
-                {
-                        
-                }*/
                 else
-                {
                     throw new Exception();
-                }
-
-                if (this._CurrentGroup == "") this._CurrentGroup = prefix;
-                else this._CurrentGroup += "|" + prefix;
+                
             }
-            catch
+            
+            _SR.Close();
+            return true;
+        }
+
+        /// <summary>
+        /// Сохраняет настройки из массива в файл
+        /// </summary>
+        /// <returns>true, если не было ошибок</returns>
+        public bool save()
+        {
+            _SW = new StreamWriter(_FileName, false);
+            foreach(String group in _Data.Keys)
             {
-                this._Status = Status.AccessError;
-                return;
-            }
-            finally
-            {
-                _SW.Close();
-                _SW.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Adds prefix to the current group and starts reading from an array. Returns the size of the array.
-        /// </summary>
-        /// <param name="prefix"></param>
-        /// <returns></returns>
-        int beginReadArray(string prefix)
-        {
-            return 0;
-        }
-
-        /// <summary>
-        /// Adds prefix to the current group and starts writing an array of size size. If size is -1 (the default), it is automatically determined based on the indexes of the entries written.
-        /// </summary>
-        /// <param name="prefix"></param>
-        /// <param name="size"></param>
-        void beginWriteArray(string prefix, int size = -1)
-        {
-            return;
-        }
-
-        /// <summary>
-        /// Returns a list of all key top-level groups that contain keys that can be read using the QSettings object.
-        /// </summary>
-        /// <returns></returns>
-        List<String> childGroups()
-        {
-            //NO DATA!
-            return null;
-        }
-
-        /// <summary>
-        /// Returns a list of all top-level keys that can be read using the QSettings object.
-        /// </summary>
-        /// <returns></returns>
-        List<String> childKeys()
-        {
-            //NO DATA!
-            return null;
-        }
-
-        /// <summary>
-        /// Removes all entries in the primary location associated to this QSettings object.
-        /// </summary>
-        /// <param name="all"></param>
-        void clear(bool all = false)
-        {
-
-        }
-
-        /// <summary>
-        /// Returns true if there exists a setting called key; returns false otherwise.
-        /// </summary>
-        /// <returns></returns>
-        bool contains(String key)
-        {
-            String filePath = "";
-            GetFilePath(ref filePath);
-
-            if (this._Status != Status.NoError) return false;
-
-            bool retData = false;
-            _SR = new StreamReader(filePath);
-            try
-            {
-                while (!_SR.EndOfStream && !retData)
+                if (_Format == Format.IniFormat)
                 {
-                    String line = _SR.ReadLine();
-                    if (this._Format == Format.IniFormat || this._Format == Format.TextFormat)
+                    _SW.WriteLine("[" + group + "]");
+                }
+                else
+                    throw new Exception();
+                for (int i = 0; i < _Data[group].Count; i++)
+                {
+                    if (_Format == Format.IniFormat)
                     {
-                        String adLine = line.Substring(0, line.IndexOf("=") + 1).Trim();
-                        if (adLine == key) retData = true;
+                        _SW.WriteLine(_Data[group].ElementAt(i).Key + "=" + _Data[group].ElementAt(i).Value.ToString());
                     }
-                    /*else if (this._Format == Format.CryptoFormat)
-                    {
-                        
-                    }*/
                     else
-                    {
                         throw new Exception();
-                    }
                 }
             }
-            catch
+            
+            _SW.Close();
+            return true;
+        }
+
+        /// <summary>
+        /// Возвращает все ключи определенной группы или null
+        /// </summary>
+        /// <param name="group">Группа для проверки</param>
+        /// <returns>Список ключей</returns>
+        public List<String> allKeys(String group = "default")
+        {
+            if (_Data == null) return null;
+            if (String.IsNullOrWhiteSpace(group)) return null;
+            if (!_Data.ContainsKey(group)) return null;
+            if (_Data[group] == null) return null;
+            return _Data[group].Keys.ToList();
+        }
+
+        /// <summary>
+        /// Очищает настройки полностью или только определенную группу
+        /// </summary>
+        /// <param name="group">Группа для очистки</param>
+        public void clear(String group = "")
+        {
+            if (String.IsNullOrWhiteSpace(group))
             {
-                this._Status = Status.AccessError;
-                return false;
+                if (_Data != null) _Data.Clear();
+                _Data = new Dictionary<String, Dictionary<String, Object>>();
             }
-            finally
+            else
             {
-                _SR.Close();
-                _SR.Dispose();
+                if (!_Data.ContainsKey(group)) return;
+                if (_Data[group] != null) _Data[group].Clear();
+                _Data[group] = new Dictionary<String, Object>();
             }
-            return retData;
         }
 
         /// <summary>
-        /// Closes the array that was started using beginReadArray() or beginWriteArray().
+        /// Возвращает true, если указанный ключ существует в указанной группе
         /// </summary>
-        void endArray()
+        /// <param name="key">Ключ для поиска</param>
+        /// <param name="group">Группа для поиска</param>
+        /// <returns></returns>
+        public Boolean contains(String key, String group = "default")
         {
-
+            if (_Data == null) return false;
+            if (String.IsNullOrWhiteSpace(group)) return false;
+            if (!_Data.ContainsKey(group)) return false;
+            if (_Data[group] == null) return false;
+            if (String.IsNullOrWhiteSpace(key)) return false;
+            return _Data[group].ContainsKey(key);
         }
 
         /// <summary>
-        /// Resets the group to what it was before the corresponding beginGroup() call.
-        /// </summary>
-        void endGroup()
-        {
-
-        }
-
-        /// <summary>
-        /// Returns the path where settings written using this QSettings object are stored.
+        /// Возвращает имя рабочего файла
         /// </summary>
         /// <returns></returns>
-        String fileName()
+        public String fileName()
         {
-            return this._FileName;
+            return _FileName;
         }
 
         /// <summary>
-        /// Returns the format used for storing the settings.
+        /// Возвращает тип рабочего файла
         /// </summary>
         /// <returns></returns>
-        Format format()
+        public Format format()
         {
-            return this._Format;
+            return _Format;
         }
 
         /// <summary>
-        /// Returns the current group.
+        /// Возвращает хранилище рабочего файла
         /// </summary>
         /// <returns></returns>
-        String group(bool onlyCurrent = true)
+        public Scope scope()
         {
-            if (onlyCurrent) return this._CurrentGroup.Split('|').Last();
-            else return this._CurrentGroup;
+            return _Scope;
         }
 
         /// <summary>
-        /// Returns true if settings can be written using this QSettings object; returns false otherwise.
+        /// Возвращает текущее состояние
         /// </summary>
         /// <returns></returns>
-        bool isWritable()
+        public Status status()
         {
-            //NO DATA!
-            return false;
+            return _Status;
         }
 
         /// <summary>
-        /// Returns the organization name used for storing the settings.
+        /// Удаляет ключ в указанной группе
         /// </summary>
+        /// <param name="key">Ключ для удаления</param>
+        /// <param name="group">Группа, содержащая ключ</param>
+        public void removeKey(String key, String group = "default")
+        {
+            if (_Data == null) return;
+            if (String.IsNullOrWhiteSpace(group)) return;
+            if (!_Data.ContainsKey(group)) return;
+            if (String.IsNullOrWhiteSpace(key)) return;
+            _Data[group].Remove(key);
+        }
+
+        /// <summary>
+        /// Удаляет группу настроек
+        /// </summary>
+        /// <param name="group">Группа для удаления</param>
+        public void removeGroup(String group)
+        {
+            if (_Data == null) return;
+            if (String.IsNullOrWhiteSpace(group)) return;
+            _Data.Remove(group);
+        }
+
+        /// <summary>
+        /// Устанавливает значение ключа в заданной группе
+        /// </summary>
+        /// <param name="key">Ключ</param>
+        /// <param name="value">Значение для сохранения</param>
+        /// <param name="group">Группа, содержащая ключ</param>
+        public void setValue(String key, Object value, String group = "default")
+        {
+            if (_Data == null) return;
+            if (String.IsNullOrWhiteSpace(group)) return;
+            if (!_Data.ContainsKey(group)) return;
+            if (String.IsNullOrWhiteSpace(key)) return;
+            if (_Data[group] == null) return;
+            if (value == null) return;
+
+            if (_Data[group].ContainsKey(key)) _Data[group][key] = value;
+            else _Data[group].Add(key, value);
+        }
+
+        /// <summary>
+        /// Возвращает значение по ключу
+        /// </summary>
+        /// <param name="key">Ключ для поиска</param>
+        /// <param name="group">Группа, содержащая ключ</param>
+        /// <param name="defaultValue">Значение, возвращаемое в случае ненайденного ключа</param>
         /// <returns></returns>
-        String organizationName()
+        public Object getValue(String key, String group = "default", Object defaultValue = null)
         {
-            //NO DATA!
-            return "";
-        }
+            if (_Data == null) return defaultValue;
+            if (String.IsNullOrWhiteSpace(group)) return defaultValue;
+            if (!_Data.ContainsKey(group)) return defaultValue;
+            if (String.IsNullOrWhiteSpace(key)) return defaultValue;
+            if (_Data[group] == null) return defaultValue;
 
-        /// <summary>
-        /// Removes the setting key and any sub-settings of key.
-        /// </summary>
-        /// <param name="key"></param>
-        void remove(String key)
-        {
-
-        }
-
-        /// <summary>
-        /// Returns the scope used for storing the settings.
-        /// </summary>
-        /// <returns></returns>
-        Scope scope()
-        {
-            return this._Scope;
-        }
-
-        /// <summary>
-        /// Sets the current array index to i. Calls to functions such as setValue(), value(), remove(), and contains() will operate on the array entry at that index.
-        /// </summary>
-        /// <param name="i"></param>
-        void setArrayIndex(int i)
-        {
-
-        }
-
-        /// <summary>
-        /// Sets the value of setting key to value. If the key already exists, the previous value is overwritten.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        void setValue(String key, Object value)
-        {
-
-        }
-
-        /// <summary>
-        /// Returns a status code indicating the first error that was met by QSettings, or QSettings::NoError if no error occurred.
-        /// </summary>
-        /// <returns></returns>
-        Status status()
-        {
-            return this._Status;
-        }
-
-        /// <summary>
-        /// Returns the value for setting key. If the setting doesn't exist, returns defaultValue.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        Object value(String key, Object defaultValue)
-        {
-            //NO DATA!
-            return null;
+            if (_Data[group].ContainsKey(key)) return _Data[group][key];
+            else return defaultValue;
         }
     }
 }
